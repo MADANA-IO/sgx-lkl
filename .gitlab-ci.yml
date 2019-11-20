@@ -41,7 +41,7 @@ Build:
     - SIM="sim"
     - VOLUME_MOUNTS=$PWD:/sgx-lkl
 
-    - docker build --target builder -t lsds/sgx-lkl:build sgx-lkl
+    - docker build --target builder -t lsds/sgx-lkl:build .
     - docker run --rm --privileged=true -v $VOLUME_MOUNTS $SSH_AGENT_WORKAROUND lsds/sgx-lkl:build /bin/bash -c "${DOCKER_CMD}"
     # builds the project, passing proxy variables, and vcs vars for LABEL
     # notice the cache-from, which is going to use the image we just pulled locally
