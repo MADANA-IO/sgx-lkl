@@ -32,7 +32,7 @@ Build:
       docker run --rm --privileged=true 
       -v $VOLUME_MOUNTS $SSH_AGENT_WORKAROUND 
       lsds/sgx-lkl:build 
-      /bin/bash -c "cd /sgx-lkl && git submodules update --init
+      /bin/bash -c "cd /sgx-lkl && git submodules update --init"
     - >
       docker run --rm --privileged=true 
       -v $VOLUME_MOUNTS $SSH_AGENT_WORKAROUND 
