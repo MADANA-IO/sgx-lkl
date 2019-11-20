@@ -28,7 +28,15 @@ Build:
     - SIM="sim"
     - VOLUME_MOUNTS=$PWD:/sgx-lkl
     - docker build --target builder -t lsds/sgx-lkl:build .
-    - docker run --rm --privileged=true -v $VOLUME_MOUNTS $SSH_AGENT_WORKAROUND lsds/sgx-lkl:build /bin/bash -c "${DOCKER_CMD}"
+    - >
+      docker run --rm --privileged=true 
+      -v $VOLUME_MOUNTS $SSH_AGENT_WORKAROUND 
+      lsds/sgx-lkl:build 
+      /bin/bash -c "cd /sgx-lkl && git submodules update --init
+    - >
+      docker run --rm --privileged=true 
+      -v $VOLUME_MOUNTS $SSH_AGENT_WORKAROUND 
+      lsds/sgx-lkl:build /bin/bash -c "${DOCKER_CMD}"
   artifacts:
     paths:
     - build/
