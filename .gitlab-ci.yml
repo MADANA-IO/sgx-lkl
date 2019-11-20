@@ -45,4 +45,5 @@ Build:
   artifacts:
     paths:
     - build/
+    - tools/
     expire_in: 3 month
