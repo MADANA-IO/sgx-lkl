@@ -18,18 +18,29 @@ variables:
 # Use this if your GitLab runner does not use socket binding
 services:
   - docker:dind
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
 
 Build:
   stage: build
   script:
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
     # build sgx-lkl
     #- ./sgx-lkl-docker.sh -s build
     #- DOCKER_CMD="cd /sgx-lkl && make sim DEBUG=0"
-    - docker build --target builder -t lsds/sgx-lkl:build .
+    - >
+      docker build 
+      --pull
+      --target builder 
+      --tag $CI_REGISTRY_IMAGE:latest 
+      --cache-from $CI_REGISTRY_IMAGE:latest
+      .
+    - docker push $CI_REGISTRY_IMAGE:latest
     - >
       docker run --rm --privileged=true 
       -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent --env SSH_AUTH_SOCK=/ssh-agent
-      lsds/sgx-lkl:build 
+      $CI_REGISTRY_IMAGE:latest 
       /bin/bash -c "cd /sgx-lkl && git submodule update --init && make clean && make sim DEBUG=0"
   artifacts:
     paths:
