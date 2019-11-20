@@ -41,7 +41,7 @@ Build:
       docker run --rm --privileged=true 
       -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent --env SSH_AUTH_SOCK=/ssh-agent
       $CI_REGISTRY_IMAGE:latest 
-      /bin/bash -c "cd /sgx-lkl && git submodule update --init && make clean && make sim DEBUG=0"
+      /bin/bash -c "cd /sgx-lkl && make clean && make sim DEBUG=0" #&& git submodule update --init 
   artifacts:
     paths:
     - build/
