@@ -15,7 +15,7 @@ cache: &global_cache
     policy: pull-push
 
 variables:
-  GIT_SUBMODULE_STRATEGY: normal
+  #GIT_SUBMODULE_STRATEGY: normal
   # fill those if you have a proxy in your environment
 
 # Use this if your GitLab runner does not use socket binding
