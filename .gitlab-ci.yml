@@ -23,21 +23,14 @@ Build:
   stage: build
   script:
     # build sgx-lkl
-    - ./sgx-lkl-docker.sh -s build
-    #- SSH_AGENT_WORKAROUND="--volume $SSH_AUTH_SOCK:/ssh-agent --env SSH_AUTH_SOCK=/ssh-agent"
-    #- DOCKER_CMD="cd /sgx-lkl && make ${SIM} DEBUG=${DEBUG}"
-    #- SIM="sim"
-    #- VOLUME_MOUNTS=$PWD:/sgx-lkl
-    #- docker build --target builder -t lsds/sgx-lkl:build .
-    #- >
-    #  docker run --rm --privileged=true 
-    #  -v $VOLUME_MOUNTS $SSH_AGENT_WORKAROUND 
-    #  lsds/sgx-lkl:build 
-    #  /bin/bash -c "export FORCE_SUBMODULES_VERSION=\"false\" && ${DOCKER_CMD}"
-    #- >
-    #  docker run --rm --privileged=true 
-    #  -v $VOLUME_MOUNTS $SSH_AGENT_WORKAROUND 
-    #  lsds/sgx-lkl:build /bin/bash -c "${DOCKER_CMD}"
+    #- ./sgx-lkl-docker.sh -s build
+    #- DOCKER_CMD="cd /sgx-lkl && make sim DEBUG=0"
+    - docker build --target builder -t lsds/sgx-lkl:build .
+    - >
+      docker run --rm --privileged=true 
+      -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent --env SSH_AUTH_SOCK=/ssh-agent
+      lsds/sgx-lkl:build 
+      /bin/bash -c "cd /sgx-lkl && git submodule update --init && make clean && make sim DEBUG=0"
   artifacts:
     paths:
     - build/
