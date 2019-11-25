@@ -47,3 +47,7 @@ Build:
     - build/
     - tools/
     expire_in: 3 month
+
+trigger_build_docker:
+  stage: .post
+  trigger: madana-io/madana-dan-docker
