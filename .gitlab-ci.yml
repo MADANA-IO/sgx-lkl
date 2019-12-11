@@ -19,9 +19,11 @@ prepare_submodules:
     - apk --no-cache add git
   script:
     - git submodule sync
+    - git status
+    - ls -al
     - git submodule update --init
 
-prepare_docker:
+.prepare_docker:
   image: docker:latest
   stage: .pre
   services:
