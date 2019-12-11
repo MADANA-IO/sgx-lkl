@@ -19,8 +19,7 @@ prepare_submodules:
     - apk --no-cache add git
   script:
           #- git submodule sync
-    - ls -al
-    - ls -al *
+    - git fetch
     - git status
     - git submodule update --init
 
