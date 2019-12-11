@@ -16,10 +16,10 @@ prepare:
     << : *default_cache
     policy: pull-push
   before_script:
-    apk --no-cache add git
+    - apk --no-cache add git
   script:
-    git submodule sync
-    git submodule update --init
+    - git submodule sync
+    - git submodule update --init
 
 build:
   image: docker:latest
