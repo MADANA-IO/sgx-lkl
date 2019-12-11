@@ -19,6 +19,8 @@ prepare_submodules:
     - apk --no-cache add git
   script:
           #- git submodule sync
+    - ls -al host-musl/../.git/modules/host-musl || true
+    - git git submodule update --init --no-fetch
     - git fetch
     - git status
     - git submodule update --init
