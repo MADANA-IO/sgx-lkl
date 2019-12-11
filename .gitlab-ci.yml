@@ -9,7 +9,7 @@ stages:
       - lkl/
       - sgx-lkl-musl/
 
-prepare:
+prepare_submodules:
   image: alpine
   stage: .pre
   cache:
@@ -21,7 +21,25 @@ prepare:
     - git submodule sync
     - git submodule update --init
 
-build:
+prepare_docker:
+  image: docker:latest
+  stage: .pre
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - >
+      docker build 
+      --pull
+      --target builder 
+      --tag $CI_REGISTRY_IMAGE:latest 
+      --cache-from $CI_REGISTRY_IMAGE:latest
+      .
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+build_simulation:
   image: docker:latest
   stage: build
   services:
@@ -32,23 +50,35 @@ build:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker pull $CI_REGISTRY_IMAGE:latest || true
-    # build sgx-lkl
-    #- ./sgx-lkl-docker.sh -s build
-    #- DOCKER_CMD="cd /sgx-lkl && make sim DEBUG=0"
-    - >
-      docker build 
-      --pull
-      --target builder 
-      --tag $CI_REGISTRY_IMAGE:latest 
-      --cache-from $CI_REGISTRY_IMAGE:latest
-      .
-    - docker push $CI_REGISTRY_IMAGE:latest
     - >
       docker run --rm --privileged=true 
-      -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent --env SSH_AUTH_SOCK=/ssh-agent
+      -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent
+      --env SSH_AUTH_SOCK=/ssh-agent
       $CI_REGISTRY_IMAGE:latest 
-      /bin/bash -c "cd /sgx-lkl && make clean && make sim DEBUG=0"
+      /bin/bash -c "cd /sgx-lkl && make sim DEBUG=0"
+  artifacts:
+    paths:
+    - build/
+    - tools/
+    expire_in: 3 month
+
+build_hardware:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  cache:
+    << : *default_cache
+    policy: pull
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - >
+      docker run --rm --privileged=true 
+      -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent
+      --env SSH_AUTH_SOCK=/ssh-agent
+      $CI_REGISTRY_IMAGE:latest 
+      /bin/bash -c "cd /sgx-lkl && make DEBUG=0"
   artifacts:
     paths:
     - build/
