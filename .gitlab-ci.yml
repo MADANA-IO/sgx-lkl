@@ -40,7 +40,7 @@ prepare_submodules:
       .
     - docker push $CI_REGISTRY_IMAGE:latest
 
-build_simulation:
+.build_simulation:
   image: docker:latest
   stage: build
   services:
@@ -63,7 +63,7 @@ build_simulation:
     - tools/
     expire_in: 3 month
 
-build_hardware:
+.build_hardware:
   image: docker:latest
   stage: build
   services:
