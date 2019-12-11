@@ -8,6 +8,7 @@ stages:
       - host-musl/
       - lkl/
       - sgx-lkl-musl/
+      - .git/modules
 
 prepare_submodules:
   image: alpine
@@ -18,15 +19,7 @@ prepare_submodules:
   before_script:
     - apk --no-cache add git
   script:
-          #- git submodule sync
-          #- mv host-musl host-musl.old
-          #- mv lkl lkl.old
-          #- mv sgx-lkl-musl sgx-lkl-musl.old
-    - rm -f host-musl/.git lkl/.git sgx-lkl-musl/.git
-    - git submodule update --init
-    - ls -al host-musl/../.git/modules/host-musl || true
-    - git status
-    - exit 1
+    - git submodule sync
     - git submodule update --init
 
 .prepare_docker:
