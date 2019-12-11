@@ -19,10 +19,13 @@ prepare_submodules:
     - apk --no-cache add git
   script:
           #- git submodule sync
+    - mv host-musl host-musl.old
+    - mv lkl lkl.old
+    - mv sgx-lkl-musl sgx-lkl-musl.old
     - git submodule update --init --no-fetch
     - ls -al host-musl/../.git/modules/host-musl || true
-    - git fetch
     - git status
+    - exit 1
     - git submodule update --init
 
 .prepare_docker:
