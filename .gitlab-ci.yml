@@ -10,7 +10,7 @@ stages:
       - lkl
       - sgx-lkl-musl
 
-.prepare_submodules:
+prepare_submodules:
   image: alpine
   stage: .pre
   cache:
@@ -49,7 +49,7 @@ prepare_docker:
     changes:
       - Dockerfile
 
-.build_tools:
+build_tools:
   image: alpine
   stage: build
   script:
@@ -63,17 +63,12 @@ prepare_docker:
 build_simulation:
   image: $CI_REGISTRY_IMAGE:latest
   stage: build
-  #services:
-  #  - docker:dind
   cache:
     << : *default_cache
     policy: pull
-  #before_script:
-  #  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - ls -al && echo $UID && (whoami || true)
-    - sudo chown -R user:user .
-    - cd lkl && git status && git checkout -f HEAD && cd ../
+    - sudo chown -R $UID:$GID .
+    #- cd lkl && git status && git checkout -f HEAD && cd ../
     - make sim DEBUG=0
     - mv build simulation
   artifacts:
@@ -81,23 +76,16 @@ build_simulation:
     - simulation/
     expire_in: 3 month
 
-.build_hardware:
-  image: docker:latest
+build_hardware:
+  image: $CI_REGISTRY_IMAGE:latest
   stage: build
-  services:
-    - docker:dind
   cache:
     << : *default_cache
     policy: pull
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - >
-      docker run --rm --privileged=true 
-      -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent
-      --env SSH_AUTH_SOCK=/ssh-agent
-      $CI_REGISTRY_IMAGE:latest 
-      /bin/bash -c "cd /sgx-lkl && make DEBUG=0"
+    - sudo chown -R $UID:$GID .
+    #- cd lkl && git status && git checkout -f HEAD && cd ../
+    - make DEBUG=0
     - mv build hardware
   artifacts:
     paths:
