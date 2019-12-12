@@ -63,8 +63,8 @@ prepare_docker:
 build_simulation:
   image: $CI_REGISTRY_IMAGE:latest
   stage: build
-  services:
-    - docker:dind
+  #services:
+  #  - docker:dind
   cache:
     << : *default_cache
     policy: pull
