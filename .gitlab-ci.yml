@@ -5,9 +5,6 @@ stages:
 .default_cache: &default_cache
     key: ${CI_COMMIT_REF_SLUG}
     paths:
-      - host-musl/
-      - lkl/
-      - sgx-lkl-musl/
       - .git/modules
 
 prepare_submodules:
