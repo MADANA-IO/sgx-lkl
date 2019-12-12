@@ -58,28 +58,18 @@ prepare_docker:
 
 
 build_simulation:
-  image: docker:latest
+  image: $CI_REGISTRY_IMAGE:latest
   stage: build
   services:
     - docker:dind
   cache:
     << : *default_cache
     policy: pull
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  #before_script:
+  #  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - >
-      docker run --rm --privileged=true 
-      -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent
-      --env SSH_AUTH_SOCK=/ssh-agent
-      $CI_REGISTRY_IMAGE:latest 
-      /bin/bash -c "cd /sgx-lkl/lkl && git status && ls -al net && git checkout -f HEAD"
-    - >
-      docker run --rm --privileged=true 
-      -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent
-      --env SSH_AUTH_SOCK=/ssh-agent
-      $CI_REGISTRY_IMAGE:latest 
-      /bin/bash -c "cd /sgx-lkl && make sim DEBUG=0"
+    - cd lkl && git status && git checkout -f HEAD && cd ../
+    - make sim DEBUG=0
     - mv build simulation
   artifacts:
     paths:
