@@ -19,7 +19,7 @@ prepare_submodules:
     - git submodule sync
     - git submodule update --init
 
-.prepare_docker:
+prepare_docker:
   image: docker:latest
   stage: .pre
   services:
@@ -36,8 +36,22 @@ prepare_submodules:
       --cache-from $CI_REGISTRY_IMAGE:latest
       .
     - docker push $CI_REGISTRY_IMAGE:latest
+  only:
+    changes:
+      - Dockerfile
 
-.build_simulation:
+build_tools:
+  image: alpine
+  stage: build
+  script:
+    - exit 0
+  artifacts:
+    paths:
+    - tools/
+    expire_in: 3 month
+
+
+build_simulation:
   image: docker:latest
   stage: build
   services:
@@ -54,13 +68,13 @@ prepare_submodules:
       --env SSH_AUTH_SOCK=/ssh-agent
       $CI_REGISTRY_IMAGE:latest 
       /bin/bash -c "cd /sgx-lkl && make sim DEBUG=0"
+    - mv build simulation
   artifacts:
     paths:
-    - build/
-    - tools/
+    - simulation/
     expire_in: 3 month
 
-.build_hardware:
+build_hardware:
   image: docker:latest
   stage: build
   services:
@@ -77,10 +91,10 @@ prepare_submodules:
       --env SSH_AUTH_SOCK=/ssh-agent
       $CI_REGISTRY_IMAGE:latest 
       /bin/bash -c "cd /sgx-lkl && make DEBUG=0"
+    - mv build hardware
   artifacts:
     paths:
-    - build/
-    - tools/
+    - hardware/
     expire_in: 3 month
 
 #trigger_build_docker:
