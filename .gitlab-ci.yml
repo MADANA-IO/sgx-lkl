@@ -30,6 +30,9 @@ prepare_docker:
   stage: .pre
   services:
     - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
@@ -68,6 +71,8 @@ build_simulation:
   #before_script:
   #  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
+    - ls -al && echo $UID && (whoami || true)
+    - sudo chown -R user:user .
     - cd lkl && git status && git checkout -f HEAD && cd ../
     - make sim DEBUG=0
     - mv build simulation
