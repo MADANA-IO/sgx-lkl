@@ -10,7 +10,7 @@ stages:
       - lkl
       - sgx-lkl-musl
 
-prepare_submodules:
+.prepare_submodules:
   image: alpine
   stage: .pre
   cache:
@@ -46,7 +46,7 @@ prepare_docker:
     changes:
       - Dockerfile
 
-build_tools:
+.build_tools:
   image: alpine
   stage: build
   script:
@@ -73,6 +73,12 @@ build_simulation:
       -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent
       --env SSH_AUTH_SOCK=/ssh-agent
       $CI_REGISTRY_IMAGE:latest 
+      /bin/bash -c "cd /sgx-lkl/lkl && git status && ls -al net && git checkout -f HEAD"
+    - >
+      docker run --rm --privileged=true 
+      -v $PWD:/sgx-lkl --volume $SSH_AUTH_SOCK:/ssh-agent
+      --env SSH_AUTH_SOCK=/ssh-agent
+      $CI_REGISTRY_IMAGE:latest 
       /bin/bash -c "cd /sgx-lkl && make sim DEBUG=0"
     - mv build simulation
   artifacts:
@@ -80,7 +86,7 @@ build_simulation:
     - simulation/
     expire_in: 3 month
 
-build_hardware:
+.build_hardware:
   image: docker:latest
   stage: build
   services:
