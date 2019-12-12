@@ -6,6 +6,9 @@ stages:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - .git/modules
+      - host-musl
+      - lkl
+      - sgx-lkl-musl
 
 prepare_submodules:
   image: alpine
@@ -17,7 +20,10 @@ prepare_submodules:
     - apk --no-cache add git
   script:
     - git submodule sync
-    - git submodule update --init
+    - git submodule update --init host-musl sgx-lkl-musl
+    - rm -rf lkl
+    - git clone --branch sgx-lkl-state --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/madana-io/linux.git lkl
+
 
 prepare_docker:
   image: docker:latest
