@@ -67,7 +67,7 @@ build_simulation:
     << : *default_cache
     policy: pull
   script:
-    - sudo chown -R $UID:$GID .
+    - sudo chown -R $(id -u):$(id -g) .
     #- cd lkl && git status && git checkout -f HEAD && cd ../
     - make sim DEBUG=0
     - mv build simulation
@@ -83,7 +83,7 @@ build_hardware:
     << : *default_cache
     policy: pull
   script:
-    - sudo chown -R $UID:$GID .
+    - sudo chown -R $(id -u):$(id -g) .
     #- cd lkl && git status && git checkout -f HEAD && cd ../
     - make DEBUG=0
     - mv build hardware
