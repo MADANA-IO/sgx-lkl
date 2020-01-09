@@ -86,6 +86,7 @@ build_hardware:
     - sudo chown -R $(id -u):$(id -g) .
     #- cd lkl && git status && git checkout -f HEAD && cd ../
     - make DEBUG=0
+    - make sgx-lkl-sign
     - mv build hardware
   artifacts:
     paths:
