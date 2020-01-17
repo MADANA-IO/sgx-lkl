@@ -30,7 +30,7 @@ WORKDIR /sgx-lkl
 RUN apt-get update && apt-get install -y \
   curl \
   openjdk-8-jdk-headless \
-  libjson-c2 \
+  libjson-c3 \
   sudo \
   make \
   && rm -rf /var/lib/apt/lists/*

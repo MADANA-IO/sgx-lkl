@@ -93,6 +93,22 @@ build_hardware:
     - hardware/
     expire_in: 3 month
 
+build_hardware_debug:
+  image: $CI_REGISTRY_IMAGE:latest
+  stage: build
+  cache:
+    << : *default_cache
+    policy: pull
+  script:
+    - sudo chown -R $(id -u):$(id -g) .
+    - make DEBUG=1
+    - make sgx-lkl-sign
+    - mv build hardware_debug
+  artifacts:
+    paths:
+    - hardware_debug/
+    expire_in: 3 month
+
 #trigger_build_docker:
 #  stage: .post
 #  trigger: madana-io/madana-dan-docker
