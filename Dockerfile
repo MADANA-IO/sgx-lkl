@@ -13,7 +13,8 @@ RUN apt-get update && apt-get install -y \
   pv \
   make gcc g++ bc python xutils-dev flex bison autogen libgcrypt20-dev libjson-c-dev autopoint pkgconf autoconf libtool libcurl4-openssl-dev libprotobuf-dev libprotobuf-c-dev protobuf-compiler protobuf-c-compiler libssl-dev \
   sudo \
-  git
+  git \
+  rsync
 
 RUN useradd --create-home -u ${UID} -s /bin/bash user && \
     adduser user sudo && \
