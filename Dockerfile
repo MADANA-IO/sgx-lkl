@@ -1,5 +1,5 @@
 # was ubuntu:16.04
-FROM phusion/baseimage as builder
+FROM ubuntu:18.04 as builder
 
 ARG UID=1000
 ARG GID=1000
@@ -22,7 +22,7 @@ RUN useradd --create-home -u ${UID} -s /bin/bash user && \
 USER user
 ENV USER=user
 
-FROM phusion/baseimage as deploy
+FROM ubuntu:18.04 as deploy
 
 WORKDIR /sgx-lkl
 
