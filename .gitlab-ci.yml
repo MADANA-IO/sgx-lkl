@@ -27,25 +27,20 @@ prepare_submodules:
 
 
 prepare_docker:
-  image: docker:latest
+  image: quay.io/containers/buildah:latest
   stage: .pre
-  services:
-    - docker:dind
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - buildah login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - buildah pull $CI_REGISTRY_IMAGE:latest || true
     - >
-      docker build 
+      buildah build 
       --pull
       --target builder 
       --tag $CI_REGISTRY_IMAGE:latest 
       --cache-from $CI_REGISTRY_IMAGE:latest
       .
-    - docker push $CI_REGISTRY_IMAGE:latest
+    - buildah push $CI_REGISTRY_IMAGE:latest
   only:
     changes:
       - Dockerfile
@@ -108,16 +103,14 @@ build_hardware_debug:
 
 
 mirror_github:
-  image: docker:latest
+  image: quay.io/containers/buildah:latest
   stage: mirror
-  services:
-  - docker:dind
   script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  - docker pull $CI_REGISTRY_IMAGE:latest || true
-  - docker login -u $GITREPOUSER -p $GITREPOTOKEN $GITHUB_REGISTRY
-  - docker tag $CI_REGISTRY_IMAGE:latest $GITHUB_REGISTRY_IMAGE:latest 
-  - docker push $GITHUB_REGISTRY_IMAGE:latest
+  - buildah login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - buildah pull $CI_REGISTRY_IMAGE:latest || true
+  - buildah login -u $GITREPOUSER -p $GITREPOTOKEN $GITHUB_REGISTRY
+  - buildah tag $CI_REGISTRY_IMAGE:latest $GITHUB_REGISTRY_IMAGE:latest 
+  - buildah push $GITHUB_REGISTRY_IMAGE:latest
 
 #trigger_build_docker:
 #  stage: .post
