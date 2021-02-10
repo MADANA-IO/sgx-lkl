@@ -42,16 +42,6 @@ prepare_submodules:
     - rm -rf lkl
     - git clone --branch sgx-lkl-state --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/madana-io/linux.git lkl
 
-build_tools:
-  image: alpine
-  stage: build
-  script:
-    - exit 0
-  artifacts:
-    paths:
-    - tools/
-
-
 build_simulation:
   image: $CI_REGISTRY_IMAGE:latest
   stage: build

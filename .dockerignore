@@ -1,9 +1,8 @@
 **
-!/build/**
-!/apps/jvm/helloworld-java/**
-!/apps/miniroot/**
+!/hardware/**
+!/hardware_debug/**
+!/simulation/**
 !/tools/**
-!/enclave_rootfs.img
 **/*.o
 **/*.h
 **/*.c
