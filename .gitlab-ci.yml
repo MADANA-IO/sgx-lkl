@@ -48,6 +48,11 @@ build_simulation:
   cache:
     << : *default_cache
     policy: pull
+  before_script:
+    - git submodule sync
+    - git submodule update --init host-musl sgx-lkl-musl
+    - rm -rf lkl
+    - git clone --branch sgx-lkl-state --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/madana-io/linux.git lkl
   script:
     - sudo chown -R $(id -u):$(id -g) .
     #- cd lkl && git status && git checkout -f HEAD && cd ../
@@ -63,6 +68,11 @@ build_hardware:
   cache:
     << : *default_cache
     policy: pull
+  before_script:
+    - git submodule sync
+    - git submodule update --init host-musl sgx-lkl-musl
+    - rm -rf lkl
+    - git clone --branch sgx-lkl-state --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/madana-io/linux.git lkl
   script:
     - sudo chown -R $(id -u):$(id -g) .
     #- cd lkl && git status && git checkout -f HEAD && cd ../
@@ -79,6 +89,11 @@ build_hardware_debug:
   cache:
     << : *default_cache
     policy: pull
+  before_script:
+    - git submodule sync
+    - git submodule update --init host-musl sgx-lkl-musl
+    - rm -rf lkl
+    - git clone --branch sgx-lkl-state --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/madana-io/linux.git lkl
   script:
     - sudo chown -R $(id -u):$(id -g) .
     - make DEBUG=1
