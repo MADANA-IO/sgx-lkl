@@ -1,6 +1,7 @@
 
 stages:
   - build
+  - package
   - mirror
 
 .default_cache: &default_cache
@@ -11,6 +12,22 @@ stages:
       - lkl
       - sgx-lkl-musl
 
+variables:
+  GSG_RELEASE_BRANCHES: master
+
+version:
+  stage: .pre
+  image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.21.1
+  variables:
+    GIT_FETCH_EXTRA_FLAGS: --tags
+  script:
+    - echo RELEASE_VERSION=$(release --bump-patch next-version) > version.env
+  artifacts:
+    reports:
+      dotenv: version.env
+  except:
+    - tags
+ 
 prepare_submodules:
   image: alpine
   stage: .pre
@@ -24,26 +41,6 @@ prepare_submodules:
     - git submodule update --init host-musl sgx-lkl-musl
     - rm -rf lkl
     - git clone --branch sgx-lkl-state --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/madana-io/linux.git lkl
-
-
-prepare_docker:
-  image: quay.io/containers/buildah:latest
-  stage: .pre
-  before_script:
-    - buildah login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - buildah pull $CI_REGISTRY_IMAGE:latest || true
-    - >
-      buildah build 
-      --pull
-      --target builder 
-      --tag $CI_REGISTRY_IMAGE:latest 
-      --cache-from $CI_REGISTRY_IMAGE:latest
-      .
-    - buildah push $CI_REGISTRY_IMAGE:latest
-  only:
-    changes:
-      - Dockerfile
 
 build_tools:
   image: alpine
@@ -100,6 +97,35 @@ build_hardware_debug:
   artifacts:
     paths:
     - hardware_debug/
+
+build_container:
+  image: docker:latest
+  #image: quay.io/containers/buildah:v1.16.2
+  stage: package
+  tags:
+    - dind
+  services:
+  - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker pull $CI_REGISTRY_IMAGE:latest || true
+  - >
+    docker build --pull
+    --tag $CI_REGISTRY_IMAGE:$RELEASE_VERSION
+    --cache-from $CI_REGISTRY_IMAGE:latest .
+  - docker push $CI_REGISTRY_IMAGE:$RELEASE_VERSION
+  - docker tag $CI_REGISTRY_IMAGE:$RELEASE_VERSION $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  - >
+    if [ "$CI_COMMIT_REF_SLUG" == "master" ]; then
+      docker tag $CI_REGISTRY_IMAGE:$RELEASE_VERSION $CI_REGISTRY_IMAGE:latest
+      docker push $CI_REGISTRY_IMAGE:latest
+    fi
+  except:
+  - tags
+
 
 
 mirror_github:
